@@ -120,7 +120,30 @@ grave de um único problema "parecia" complexo para o modelo.
 "gerar em menos de 2 minutos", repetindo o sintoma do relato como se fosse a meta. O
 juiz classificou como erro factual.
 
-### Hipótese para a iteração 2
+### ⚠️ Descoberta posterior: o prompt avaliado estava corrompido
+
+Ao preparar a iteração 2, a leitura linha a linha do `v2.yml` revelou **8 trechos
+corrompidos** desde o commit `41f890f` (provável falha de copiar e colar): frases cortadas
+no meio e, o mais grave, **o passo 5 da análise ausente**. Era justamente o passo que
+define SIMPLES, MÉDIO e COMPLEXO. Outros cortes atingiram o template da frase da story
+(`eu quero [açãonefício]`), a descrição do modelo MÉDIO e as regras 4 e 5.
+
+**Impacto na leitura dos resultados:** o prompt mandava "escolher o modelo de acordo com a
+complexidade", mas nunca dizia como classificá-la. Isso explica melhor o erro de formato do
+bug de segurança do que a hipótese original, e pode ter contribuído para as omissões.
+
+**Por que passou despercebido:** a validação feita antes do push era **estrutural** (YAML
+válido, seções presentes, apenas `{bug_report}` como variável, sem TODO). Todos os títulos
+estavam lá, então tudo passou. Validação estrutural não detecta texto corrompido. Para
+conteúdo em linguagem natural, a revisão precisa incluir a leitura do texto.
+
+### Hipótese para a iteração 2 (revisada)
+
+Para isolar o efeito de cada mudança, a iteração 2 **apenas repara as 8 corrupções**,
+restaurando o v2 como ele foi projetado. Se F1 e Correctness continuarem abaixo de 0.8, as
+três mudanças abaixo ficam para a iteração 3.
+
+### Mudanças planejadas para a iteração 3
 
 Subir o recall sem perder precisão, com três mudanças:
 

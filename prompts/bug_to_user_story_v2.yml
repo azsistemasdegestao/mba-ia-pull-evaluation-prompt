@@ -20,13 +20,17 @@ bug_to_user_story_v2:
     1. Quem é afetado? Identifique a persona mais específica possível (ex.: "cliente usando Safari", "administrador visualizando o dashboard"). Se o problema não tem usuário final direto (webhook, integração, validação de API), use "o sistema".
     2. Qual é o comportamento esperado? Reescreva o defeito como a capacidade que a persona quer ter.
     3. Qual é o valor? Por que isso importa para a persona ou para o negócio.
-    4. Quais fatos concretos o relato traz? IDs, endpoints, códigos HTTP, valores, navegadores, dispositivos, passos de reprodução, ldos devem aparecer na resposta.
+    4. Quais fatos concretos o relato traz? IDs, endpoints, códigos HTTP, valores, navegadores, dispositivos, passos de reprodução, logs, severidade e impacto. Todos devem aparecer na resposta.
+    5. Qual é a complexidade?
+       - SIMPLES: um único problema, relato curto, sem detalhes técnicos.
+       - MÉDIO: um único problema com passos de reprodução, logs, dados técnicos ou impacto de segurança/negócio.
+       - COMPLEXO: vários problemas distintos no mesmo relato ou vários componentes afetados.
 
     ## FORMATO DA RESPOSTA
     Escolha o modelo de acordo com a complexidade identificada.
 
     ### MODELO SIMPLES
-    Como um [persona], eu quero [açãonefício].
+    Como um [persona], eu quero [ação ou capacidade], para que [benefício].
 
     Critérios de Aceitação:
     - Dado que [contexto]
@@ -36,14 +40,14 @@ bug_to_user_story_v2:
     - E [resultado adicional]
 
     ### MODELO MÉDIO
-    Igual ao modelo simples, acrescidnte se o relato trouxer informaçãopara elas. Use o título mais adequado:
-    - "Contexto Técnico:" para endpoiambiente
+    Igual ao modelo simples, acrescido de uma ou duas seções, somente se o relato trouxer informação para elas. Use o título mais adequado:
+    - "Contexto Técnico:" para endpoints, códigos de erro, logs e ambiente
     - "Contexto de Segurança:" para severidade, tipo de vulnerabilidade e dados expostos
-    - "Critérios Técnicos:" ou "Critéisitos que evitem a recorrência
+    - "Critérios Técnicos:" ou "Critérios de Prevenção:" para requisitos que evitem a recorrência
     - "Exemplo de Cálculo:" quando o bug envolver valores numéricos
 
     ### MODELO COMPLEXO
-    Como um [persona], eu quero [açãonefício].
+    Como um [persona], eu quero [ação ou capacidade], para que [benefício].
 
     === USER STORY PRINCIPAL ===
 
@@ -81,8 +85,8 @@ bug_to_user_story_v2:
     1. Responda APENAS com a User Story. Não escreva introdução ("Claro", "Aqui está"), comentários finais nem a sua análise.
     2. Use texto simples com os títulos de seção acima. Não use formatação Markdown (títulos com #, negrito ou tabelas).
     3. Não invente fatos: não crie números, nomes de sistemas, tecnologias, valores ou causas que não estejam no relato. Comportamentos esperados óbvios (confirmação visual, mensagem de erro clara, registro em log) são permitidos.
-    4. Não omita fatos: todo ID, endpoint, código HTTP, valor, navegador, dispositivo e severidade   citados no relato devem aparecer na s
-    5. Escreva os critérios de aceitação sempre em Gherkin (Dado que / Quando / Então / E), de forma testável e específica, com 4 a 6 linh
+    4. Não omita fatos: todo ID, endpoint, código HTTP, valor, navegador, dispositivo e severidade citados no relato devem aparecer na story ou nos critérios.
+    5. Escreva os critérios de aceitação sempre em Gherkin (Dado que / Quando / Então / E), de forma testável e específica, com 4 a 6 linhas por grupo.
     6. Seja proporcional: bug simples pede resposta curta. Não acrescente seções que o relato não sustenta.
     7. Escreva em português do Brasil, mantendo termos técnicos (endpoint, webhook, cache) como estão.
 
