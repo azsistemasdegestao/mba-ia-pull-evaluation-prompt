@@ -24,7 +24,7 @@ bug_to_user_story_v2:
     5. Qual é a complexidade?
        - SIMPLES: um único problema, relato curto, sem detalhes técnicos.
        - MÉDIO: um único problema com passos de reprodução, logs, dados técnicos ou impacto de segurança/negócio.
-       - COMPLEXO: SOMENTE quando o relato descreve 2 ou mais problemas distintos (ex.: uma lista numerada de falhas diferentes). Um único problema, mesmo grave, técnico ou de segurança, é MÉDIO.
+       - COMPLEXO: SOMENTE quando o relato descreve 2 ou mais problemas distintos, cada um com causa e sintoma próprios. Um único problema, mesmo grave, técnico ou de segurança, é MÉDIO. Passos de reprodução, exemplos, detalhes ou observações em lista NÃO são problemas distintos.
     6. Complete os critérios como um PM experiente. Além do comportamento corrigido, inclua os comportamentos esperados que o tipo de bug exige, mesmo que o relato não os cite:
        - Segurança/permissões: quem NÃO pode (erro HTTP adequado), quem PODE (acesso aos próprios dados, administradores) e registro em log de auditoria. Use "Critérios Adicionais para [perfil]:" quando houver perfis diferentes.
        - Interface/modal/layout: acessibilidade (foco do teclado, fechar com ESC, leitores de tela) e comportamento em diferentes tamanhos de tela.
@@ -47,12 +47,14 @@ bug_to_user_story_v2:
     - E [resultado adicional]
 
     ### MODELO MÉDIO
-    Igual ao modelo simples, acrescido de uma ou duas seções, somente se o relato trouxer informação para elas. Use o título mais adequado:
+    Igual ao modelo simples, acrescido de uma a três seções adequadas ao tipo de bug. Use os títulos mais adequados:
     - "Contexto Técnico:" para endpoints, códigos de erro, logs e ambiente
     - "Contexto de Segurança:" para severidade, tipo de vulnerabilidade e dados expostos
     - "Critérios Técnicos:" ou "Critérios de Prevenção:" para requisitos que evitem a recorrência
+    - "Critérios Adicionais para [perfil]:" quando perfis diferentes (ex.: administrador, atendente) têm comportamentos esperados diferentes
+    - "Critérios de Acessibilidade:" em bugs de interface (foco do teclado, fechar com ESC, leitores de tela)
     - "Exemplo de Cálculo:" quando o bug envolver valores numéricos
-    No modelo MÉDIO, as seções extras são listas com hífen. Nunca use títulos com "===" fora do modelo COMPLEXO.
+    No modelo MÉDIO, as seções extras são listas com hífen. Nunca use títulos com "===" fora do modelo COMPLEXO. As seções "Título", "Descrição", "Problemas Identificados" e "Tasks Técnicas Sugeridas" são exclusivas do modelo COMPLEXO. Só escreva "Severidade" se o relato informar a severidade.
 
     ### MODELO COMPLEXO
     Como um [persona], eu quero [ação ou capacidade], para que [benefício].
@@ -95,8 +97,9 @@ bug_to_user_story_v2:
     3. Não invente DADOS: números, prazos, severidade, nomes de sistemas, tecnologias ou causas que não estejam no relato. Se o relato não informa a severidade, não escreva uma. Comportamentos esperados e boas práticas do tipo de problema (passo 6 da análise) NÃO são invenção e devem ser incluídos.
     4. Não omita fatos: todo ID, endpoint, código HTTP, valor, navegador, dispositivo e severidade citados no relato devem aparecer na story ou nos critérios.
     5. Escreva os critérios de aceitação sempre em Gherkin (Dado que / Quando / Então / E), de forma testável e específica, com 4 a 6 linhas por grupo.
-    6. Seja proporcional: bug simples pede resposta curta. Não acrescente seções que o relato não sustenta.
+    6. Seja proporcional: bug simples pede resposta curta, sem seções extras. Bug médio usa o modelo MÉDIO, nunca o COMPLEXO.
     7. Escreva em português do Brasil, mantendo termos técnicos (endpoint, webhook, cache) como estão.
+    8. Em bugs de performance, o critério deve exigir um desempenho melhor que o atual. Nunca use o valor do problema (ex.: o tempo atual de resposta) como meta.
 
     ## CASOS ESPECIAIS
     - Relato vago ou incompleto (ex.: "não funciona"): escreva a story com base apenas no que foi dito, sem inventar detalhes, mantendo critérios genéricos porém testáveis.
@@ -122,35 +125,71 @@ bug_to_user_story_v2:
     - E a busca por "cafe" deve retornar os mesmos resultados
     - E a busca não deve diferenciar letras acentuadas de não acentuadas
 
-    ### Exemplo 2 (MÉDIO)
+    ### Exemplo 2 (MÉDIO: integração com passos de reprodução)
 
     Entrada:
-    Upload de foto de perfil falha para imagens maiores que 2MB.
+    Email de redefinição de senha não é enviado.
 
-    Passos para reproduzir:
-    1. Acessar Configurações > Perfil
-    2. Selecionar uma imagem JPG de 3MB
-    3. Clicar em "Salvar"
+    Steps to reproduce:
+    1. Acessar a tela de login
+    2. Clicar em "Esqueci minha senha"
+    3. Informar um email cadastrado
+    4. Clicar em "Enviar"
 
-    Resultado: o indicador de carregamento gira e some, sem nenhuma mensagem. A foto não é atualizada.
-    Console do navegador: POST /api/profile/avatar retorna HTTP 413.
+    Resultado: a tela mostra "Email enviado", mas nada chega na caixa de entrada.
+    Logs do servidor: POST /api/auth/password-reset retorna HTTP 500 ao chamar o serviço de email.
 
     Saída:
-    Como um usuário editando meu perfil, eu quero enviar fotos maiores que 2MB ou ser avisado claramente sobre o limite, para que eu consiga atualizar minha foto sem ficar sem resposta.
+    Como um usuário que esqueceu a senha, eu quero receber o email de redefinição ao solicitá-lo, para que eu consiga recuperar o acesso à minha conta.
 
     Critérios de Aceitação:
-    - Dado que estou na tela Configurações > Perfil
-    - Quando seleciono uma imagem JPG de 3MB e clico em "Salvar"
-    - Então a foto deve ser enviada e exibida no meu perfil
-    - E, se a imagem exceder o limite permitido, devo ver uma mensagem informando o tamanho máximo aceito
-    - E o indicador de carregamento não deve desaparecer sem um retorno ao usuário
+    - Dado que informei um email cadastrado na tela "Esqueci minha senha"
+    - Quando clico em "Enviar"
+    - Então o endpoint POST /api/auth/password-reset deve retornar HTTP 200
+    - E o email de redefinição deve chegar na minha caixa de entrada
+    - E a mensagem "Email enviado" só deve aparecer após o envio ser confirmado
+    - E o sistema deve registrar o envio em log
 
     Contexto Técnico:
-    - Endpoint: POST /api/profile/avatar
-    - Erro atual: HTTP 413 (Payload Too Large) para imagens acima de 2MB
-    - Falha silenciosa: nenhuma mensagem é exibida ao usuário
+    - Endpoint: POST /api/auth/password-reset
+    - Erro atual: HTTP 500 ao chamar o serviço de email
+    - Falha silenciosa: a interface informa sucesso mesmo com erro no servidor
 
-    ### Exemplo 3 (COMPLEXO)
+    ### Exemplo 3 (MÉDIO: permissão entre perfis)
+
+    Entrada:
+    Usuário consegue cancelar pedido de outra pessoa.
+
+    Exemplo:
+    - Cliente logado (ID 230) envia DELETE /api/orders/9876, que pertence ao cliente ID 115
+    - O pedido é cancelado e o estorno é gerado
+    - Somente o dono do pedido ou um atendente do suporte deveriam poder cancelar
+
+    Severidade: ALTA
+
+    Saída:
+    Como o sistema, eu quero validar a permissão antes de cancelar um pedido, para que apenas o dono do pedido ou um atendente autorizado possa cancelá-lo.
+
+    Critérios de Aceitação:
+    - Dado que sou um cliente autenticado
+    - Quando envio DELETE /api/orders/:id para um pedido de outro cliente
+    - Então devo receber HTTP 403 Forbidden
+    - E o pedido não deve ser cancelado nem gerar estorno
+    - E devo continuar podendo cancelar os meus próprios pedidos
+
+    Critérios Adicionais para Atendentes:
+    - Dado que sou um atendente do suporte
+    - Quando cancelo o pedido de qualquer cliente
+    - Então o cancelamento deve ser concluído com HTTP 200
+    - E a ação deve ser registrada em log de auditoria com o atendente responsável
+
+    Contexto de Segurança:
+    - Severidade: ALTA
+    - Tipo: quebra de controle de acesso
+    - Impacto: cancelamentos e estornos indevidos em pedidos de terceiros
+    - Caso do relato: cliente ID 230 cancelou o pedido 9876 do cliente ID 115
+
+    ### Exemplo 4 (COMPLEXO)
 
     Entrada:
     Plataforma de cursos online com vários problemas após a atualização da última sexta-feira.

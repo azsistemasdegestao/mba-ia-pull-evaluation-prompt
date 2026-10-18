@@ -29,8 +29,9 @@ Por isso, Precision pesa nas duas métricas derivadas, e F1 baixo derruba Correc
 |---|---|---|---|---|---|---|---|---|
 | 1 | v2 inicial (Role + Few-shot + CoT + Skeleton) | 0.76 | 0.88 | 0.81 | 0.85 | 0.79 | 0.8174 | ❌ |
 | 2 | Reparo de 8 trechos corrompidos (restaura o passo 5) | 0.76 | 0.87 | 0.83 | 0.85 | 0.80* | 0.8227 | ❌ |
+| 3 | Critério de complexidade + passo 6 + regra 3 recalibrada | 0.78 | 0.87 | 0.82 | 0.85 | 0.80* | 0.8221 | ❌ |
 
-\* 0.7962 exato, arredondado para 0.80 na saída do terminal, mas abaixo do limite.
+\* Arredondado na saída do terminal. Valores exatos: 0.7962 (iteração 2) e 0.7984 (iteração 3), ambos abaixo do limite.
 
 ---
 
@@ -208,3 +209,76 @@ ficou idêntico. O experimento confirmou que as causas são as identificadas na 
    pagamento, cálculo, dados, validação).
 3. **Regra 3 recalibrada:** proíbe inventar **dados** (incluindo severidade ausente no relato)
    e permite explicitamente comportamentos esperados e boas práticas.
+
+---
+
+## Iteração 3: complexidade, passo 6 e regra 3
+
+**Data:** 2026-10-18
+**Experimento:** `alexandre-silva-bug_to_user_story_v2-6c9ec5d8`
+**Link:** https://smith.langchain.com/o/830b566d-4887-40ca-8544-046d339e768a/datasets/b866f1cb-44b0-46a9-8170-1d131d830df6/compare?selectedSessions=e975f3cb-dd97-44a5-825f-5589b25bb2ec
+**Commit:** `ce3c596`
+
+### Resultado
+
+| Métrica | Iter. 2 | Iter. 3 | Variação |
+|---|---|---|---|
+| F1-Score | 0.7623 | 0.7762 | ↑ |
+| Clarity | 0.8733 | 0.87 | ≈ |
+| Precision | 0.83 | 0.8207 | ≈ |
+| Helpfulness | 0.85 | 0.8453 | ≈ |
+| Correctness | 0.7962 | 0.7984 | ↑ (ainda < 0.8) |
+
+### Diagnóstico
+
+**1. O modelo ignorou o passo 6 e seguiu os exemplos.** As instruções pediam acessibilidade
+em bugs de interface, e-mail e log em webhooks e "Exemplo de Cálculo:" em bugs de valores.
+Nenhum desses itens apareceu nas respostas. Os exemplos few-shot, porém, nunca demonstravam
+essas seções: o exemplo médio só tinha "Critérios de Aceitação" e "Contexto Técnico".
+**Quando instrução e exemplo divergem, o modelo (especialmente um modelo pequeno como o
+`gpt-4o-mini`) segue o exemplo.**
+
+**2. O erro de formato tem um padrão.** Três bugs médios ainda saíram no formato COMPLEXO
+(webhook, endpoint de usuários e app Android). Os três trazem **listas no relato** (passos de
+reprodução, exemplo, observações). O modelo interpreta "lista" como "vários problemas", e a
+nova regra pode ter reforçado isso ao citar "lista numerada" como exemplo de complexidade.
+
+**3. Sintoma convertido em meta.** No relatório lento, o critério gerado foi "menos de 2
+minutos", repetindo o valor do problema. O gabarito exige uma meta melhor que o atual.
+
+**4. Ruído do juiz.** No webhook, um avaliador apontou falta de "e-mail de confirmação"
+(F1) enquanto, em outra execução, o avaliador de Precision chamou o mesmo item de
+alucinação. LLM-as-Judge tem variância. Por isso a análise se apoia em padrões recorrentes
+em vários exemplos, e não em casos isolados.
+
+### Mudanças para a iteração 4
+
+Tese: **alinhar os exemplos few-shot com as instruções.**
+
+1. **Exemplos reescritos:** além do simples e do complexo, dois exemplos médios, um de
+   integração com passos numerados (mostrando HTTP de sucesso, efeitos esperados e que passos
+   não tornam o bug complexo) e um de permissão entre perfis (mostrando "Critérios Adicionais
+   para [perfil]:" e "Contexto de Segurança:").
+2. **Critério de complexidade:** passos de reprodução, detalhes e observações em lista não
+   são problemas distintos.
+3. **Seções complementares no modelo MÉDIO:** incluir "Critérios de Acessibilidade:" e
+   "Critérios Adicionais para [perfil]:" entre as opções.
+4. **Regra de performance:** o critério deve exigir desempenho melhor que o atual, nunca
+   repetir o valor do problema como meta.
+
+**Ajustes feitos durante o teste de fumaça (antes da avaliação):**
+
+5. **Contradições removidas:** o modelo MÉDIO dizia "seções somente se o relato trouxer
+   informação" e a regra 6 dizia "não acrescente seções que o relato não sustenta", o que
+   contradizia as seções de boas práticas. Agora: "uma a três seções adequadas ao tipo de bug"
+   e "bug médio usa o modelo MÉDIO, nunca o COMPLEXO".
+6. **Brechas do modelo MÉDIO fechadas:** no teste, o bug do Android copiou "Problemas
+   Identificados" e "Tasks" sem usar `===`, e dois bugs inventaram "Severidade: ALTA". Foi
+   acrescentado: "Título, Descrição, Problemas Identificados e Tasks Técnicas Sugeridas são
+   exclusivas do COMPLEXO. Só escreva Severidade se o relato informar."
+
+Teste de fumaça (só geração, sem o juiz): o modal passou a incluir "Critérios de
+Acessibilidade", o webhook e o Android saíram no formato MÉDIO sem severidade inventada, e o
+relatório lento passou a exigir "menos de 60 segundos" em vez de repetir os 2 minutos do
+sintoma. O endpoint de usuários ainda saiu no formato COMPLEXO, mas com os dois perfis
+(403 e 200) e os dados expostos, que eram as omissões apontadas pelo juiz.
