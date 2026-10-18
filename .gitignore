@@ -48,3 +48,5 @@ ENV/
 screenshots/
 results/
 .claude/.playwright-mcp/
+.playwright-mcp/page-2026-10-18T14-01-50-577Z.yml
+.playwright-mcp/page-2026-10-18T14-01-58-363Z.yml
