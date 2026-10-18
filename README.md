@@ -118,17 +118,15 @@ Passos de reprodução, exemplos, detalhes ou observações em lista NÃO são p
   https://smith.langchain.com/public/3fad0631-06c6-4d98-9fe9-429d5a1ce7f8/d
 - **Experimento aprovado:** `alexandre-silva-bug_to_user_story_v2-a3853820`
 
-<!-- Substitua pelos prints reais, salvos na pasta screenshots/ -->
-
-**Experimento aprovado (notas ≥ 0.8):**
+**Experimento aprovado: notas dos 15 exemplos, com as médias no cabeçalho (todas ≥ 0.8):**
 
 ![Experimento aprovado](screenshots/01-experimento-aprovado.png)
 
-**Dataset de avaliação com os 15 exemplos:**
+**Experimento aprovado: os 15 exemplos do dataset, com input, referência, saída e notas:**
 
 ![Dataset de avaliação](screenshots/02-dataset-15-exemplos.png)
 
-**Comparação das iterações no LangSmith:**
+**As 4 iterações comparadas no dataset de avaliação:**
 
 ![Comparação das iterações](screenshots/03-comparacao-iteracoes.png)
 
