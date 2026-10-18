@@ -70,11 +70,12 @@ def push_prompt_to_langsmith(prompt_name: str, prompt_data: dict) -> bool:
     readme = "Técnicas aplicadas:\n" + "\n".join(f"- {t}" for t in techniques)
     print(f"Fazendo push de: {prompt_name}")
     try:
-        url = hub.push(
+        client = Client()
+        url = client.push_prompt(
             prompt_name,
-            prompt,
-            new_repo_is_public=True,
-            new_repo_description=prompt_data.get("description", ""),
+            object=prompt,
+            is_public=True,
+            description=prompt_data.get("description", ""),
             readme=readme,
             tags=prompt_data.get("tags", []),
         )
@@ -96,7 +97,7 @@ def validate_prompt(prompt_data: dict) -> tuple[bool, list]:
     Returns:
         (is_valid, errors) - Tupla com status e lista de erros
     """
-    is_valid, errors = validate_prompt_structure(prompt_data)
+    _, errors = validate_prompt_structure(prompt_data)
 
     user_prompt = prompt_data.get("user_prompt", "")
     if "{bug_report}" not in user_prompt:

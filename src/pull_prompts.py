@@ -47,7 +47,8 @@ OUTPUT_PATH = Path(__file__).resolve().parent.parent / "prompts" / f"{PROMPT_KEY
 def pull_prompts_from_langsmith():
     print(f"Puxando prompt: {PROMPT_HUB_NAME}")
     try:
-        prompt = hub.pull(PROMPT_HUB_NAME)
+        client = Client()
+        prompt = client.pull_prompt(PROMPT_HUB_NAME, dangerously_pull_public_prompt=True)
     except Exception as e:
         print(f"❌ Erro ao fazer pull: {e}")
         return False
