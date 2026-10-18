@@ -30,6 +30,7 @@ Por isso, Precision pesa nas duas métricas derivadas, e F1 baixo derruba Correc
 | 1 | v2 inicial (Role + Few-shot + CoT + Skeleton) | 0.76 | 0.88 | 0.81 | 0.85 | 0.79 | 0.8174 | ❌ |
 | 2 | Reparo de 8 trechos corrompidos (restaura o passo 5) | 0.76 | 0.87 | 0.83 | 0.85 | 0.80* | 0.8227 | ❌ |
 | 3 | Critério de complexidade + passo 6 + regra 3 recalibrada | 0.78 | 0.87 | 0.82 | 0.85 | 0.80* | 0.8221 | ❌ |
+| 4 | Few-shot alinhado às instruções (2 exemplos médios novos) | **0.80** | **0.88** | **0.86** | **0.87** | **0.83** | **0.8508** | ✅ |
 
 \* Arredondado na saída do terminal. Valores exatos: 0.7962 (iteração 2) e 0.7984 (iteração 3), ambos abaixo do limite.
 
@@ -282,3 +283,41 @@ Acessibilidade", o webhook e o Android saíram no formato MÉDIO sem severidade 
 relatório lento passou a exigir "menos de 60 segundos" em vez de repetir os 2 minutos do
 sintoma. O endpoint de usuários ainda saiu no formato COMPLEXO, mas com os dois perfis
 (403 e 200) e os dados expostos, que eram as omissões apontadas pelo juiz.
+
+---
+
+## Iteração 4: few-shot alinhado às instruções ✅ APROVADO
+
+**Data:** 2026-10-18
+**Experimento:** `alexandre-silva-bug_to_user_story_v2-a3853820`
+**Link:** https://smith.langchain.com/o/830b566d-4887-40ca-8544-046d339e768a/datasets/b866f1cb-44b0-46a9-8170-1d131d830df6/compare?selectedSessions=61e18230-d687-4bbf-bbc3-8f326fc74e96
+**Commit:** `a841aaa`
+
+### Resultado
+
+| Métrica | Iter. 1 | Iter. 3 | Iter. 4 | Status |
+|---|---|---|---|---|
+| F1-Score | 0.7623 | 0.7762 | **0.8025** | ✅ |
+| Clarity | 0.88 | 0.87 | **0.8833** | ✅ |
+| Precision | 0.81 | 0.8207 | **0.8627** | ✅ |
+| Helpfulness | 0.85 | 0.8453 | **0.873** | ✅ |
+| Correctness | 0.79 | 0.7984 | **0.8326** | ✅ |
+| **Média** | 0.8174 | 0.8221 | **0.8508** | ✅ |
+| Bugs médios no formato COMPLEXO | 4 | — | **1** | |
+
+### Diagnóstico
+
+A tese da iteração se confirmou: **alinhar os exemplos few-shot com as instruções foi a
+mudança de maior impacto do processo.** Nas iterações 2 e 3, mudar apenas instruções moveu o
+F1 em no máximo +0.014. Com os exemplos demonstrando as seções pedidas, o F1 subiu +0.026 e a
+Precision +0.042, porque as respostas passaram a cobrir os critérios que o gabarito contém
+(acessibilidade, perfis diferentes, efeitos esperados de integrações) e a respeitar o formato
+MÉDIO.
+
+### Margem e limitações
+
+- **A margem do F1 é pequena (0.8025).** Como o juiz é um LLM, há variância entre execuções
+  (ver o ruído registrado na iteração 3). Uma nova execução do mesmo prompt pode oscilar em
+  torno do limite.
+- O bug de segurança do endpoint de usuários continua saindo no formato COMPLEXO, embora agora
+  com o conteúdo correto (os dois perfis e os dados expostos).
