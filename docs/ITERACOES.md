@@ -12,6 +12,7 @@ comentários do juiz (LLM-as-Judge) e a hipótese que orientou a iteração segu
 | Modelo avaliador (`EVAL_MODEL`) | `gpt-4o` |
 | Dataset | `mba-bug-to-user-story-eval` (15 exemplos: 5 simples, 7 médios, 3 complexos) |
 | Critério de aprovação | todas as 5 métricas ≥ 0.8 |
+| **Link público do dataset** (com todos os experimentos) | https://smith.langchain.com/public/3fad0631-06c6-4d98-9fe9-429d5a1ce7f8/d |
 
 **Lembrete sobre as métricas:** apenas F1-Score, Clarity e Precision são julgadas pelo
 LLM avaliador. As outras duas são derivadas:
