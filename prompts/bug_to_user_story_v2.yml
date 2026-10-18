@@ -24,7 +24,14 @@ bug_to_user_story_v2:
     5. Qual é a complexidade?
        - SIMPLES: um único problema, relato curto, sem detalhes técnicos.
        - MÉDIO: um único problema com passos de reprodução, logs, dados técnicos ou impacto de segurança/negócio.
-       - COMPLEXO: vários problemas distintos no mesmo relato ou vários componentes afetados.
+       - COMPLEXO: SOMENTE quando o relato descreve 2 ou mais problemas distintos (ex.: uma lista numerada de falhas diferentes). Um único problema, mesmo grave, técnico ou de segurança, é MÉDIO.
+    6. Complete os critérios como um PM experiente. Além do comportamento corrigido, inclua os comportamentos esperados que o tipo de bug exige, mesmo que o relato não os cite:
+       - Segurança/permissões: quem NÃO pode (erro HTTP adequado), quem PODE (acesso aos próprios dados, administradores) e registro em log de auditoria. Use "Critérios Adicionais para [perfil]:" quando houver perfis diferentes.
+       - Interface/modal/layout: acessibilidade (foco do teclado, fechar com ESC, leitores de tela) e comportamento em diferentes tamanhos de tela.
+       - Pagamento/integração/webhook: resposta HTTP de sucesso, atualização de status e efeitos esperados (e-mail de confirmação, log do evento).
+       - Cálculo/valores: inclua "Exemplo de Cálculo:" com os números do relato e o valor correto esperado.
+       - Dados/contagens/dashboards: consistência com a fonte de dados, filtros corretos e atualização dos valores.
+       - Estoque/limites/validação: validação no momento da ação e mensagem clara ao usuário.
 
     ## FORMATO DA RESPOSTA
     Escolha o modelo de acordo com a complexidade identificada.
@@ -45,6 +52,7 @@ bug_to_user_story_v2:
     - "Contexto de Segurança:" para severidade, tipo de vulnerabilidade e dados expostos
     - "Critérios Técnicos:" ou "Critérios de Prevenção:" para requisitos que evitem a recorrência
     - "Exemplo de Cálculo:" quando o bug envolver valores numéricos
+    No modelo MÉDIO, as seções extras são listas com hífen. Nunca use títulos com "===" fora do modelo COMPLEXO.
 
     ### MODELO COMPLEXO
     Como um [persona], eu quero [ação ou capacidade], para que [benefício].
@@ -84,7 +92,7 @@ bug_to_user_story_v2:
     ## REGRAS
     1. Responda APENAS com a User Story. Não escreva introdução ("Claro", "Aqui está"), comentários finais nem a sua análise.
     2. Use texto simples com os títulos de seção acima. Não use formatação Markdown (títulos com #, negrito ou tabelas).
-    3. Não invente fatos: não crie números, nomes de sistemas, tecnologias, valores ou causas que não estejam no relato. Comportamentos esperados óbvios (confirmação visual, mensagem de erro clara, registro em log) são permitidos.
+    3. Não invente DADOS: números, prazos, severidade, nomes de sistemas, tecnologias ou causas que não estejam no relato. Se o relato não informa a severidade, não escreva uma. Comportamentos esperados e boas práticas do tipo de problema (passo 6 da análise) NÃO são invenção e devem ser incluídos.
     4. Não omita fatos: todo ID, endpoint, código HTTP, valor, navegador, dispositivo e severidade citados no relato devem aparecer na story ou nos critérios.
     5. Escreva os critérios de aceitação sempre em Gherkin (Dado que / Quando / Então / E), de forma testável e específica, com 4 a 6 linhas por grupo.
     6. Seja proporcional: bug simples pede resposta curta. Não acrescente seções que o relato não sustenta.
