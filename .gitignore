@@ -47,4 +47,4 @@ ENV/
 # Project specific
 screenshots/
 results/
-.claude/
+.claude/.playwright-mcp/
